@@ -1,5 +1,11 @@
 import React, { memo, use, useEffect, useState } from "react";
-import { Position, useNodeConnections, useReactFlow } from "@xyflow/react";
+import {
+  Position,
+  useNodeConnections,
+  useNodes,
+  useNodesData,
+  useReactFlow,
+} from "@xyflow/react";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -71,6 +77,32 @@ export default memo(({ id, data }: NodeComponentProps) => {
     }
   }, [data.LLM]);
 
+  const vcConns = useNodeConnections({
+    id: id,
+    handleType: "target",
+    handleId: NodeDataTypes.VectorStore,
+  });
+
+  const vcNodeData = useNodesData(vcConns?.[0]?.source);
+
+  const nodes = useNodes();
+
+  const reactFlow = useReactFlow();
+
+  const deleteNodeById = (id: string) => {
+    reactFlow.setNodes((nds) => nds.filter((node) => node.id !== id));
+  };
+
+  const deleteCurrentNode = () => {
+    reactFlow.setNodes((nds) => nds.filter((node) => node.id !== id));
+  };
+
+  useEffect(() => {
+    console.log("bby", vcNodeData?.data?.[NodeDataTypes.VectorStore]);
+
+    console.log("nodes", nodes);
+  }, [vcNodeData]);
+
   useEffect(() => {
     setVectorStore(data.vectorStore);
   }, [data.vectorStore]);
@@ -97,14 +129,14 @@ export default memo(({ id, data }: NodeComponentProps) => {
     };
     propagateLLMModel(LLMOutputConnections, payload);
 
-    const out = await babyAGI.invoke({
-      objective: prompt,
-    },
-  {
-    
-  });
+    const out = await babyAGI.invoke(
+      {
+        objective: prompt,
+      },
+      {}
+    );
 
-    console.log(out)
+    console.log(out);
 
     payload = {
       content: stringify(out),
@@ -140,7 +172,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
           />
         </div>
         <div className="w-full">
-          <Button onClick={run} variant="outline" className="w-full">
+          <Button onClick={deleteCurrentNode} variant="outline" className="w-full">
             Run
           </Button>
         </div>

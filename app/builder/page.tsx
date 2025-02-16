@@ -214,7 +214,7 @@ function Flow() {
   };
 
   return (
-    <div className="h-full border border-slate-150 rounded-md">
+    <div className="h-full border border-slate-150 rounded-md flex flex-row">
       {/* <div className="absolute z-10 flex flex-row gap-2 p-2 m-2 ">
         <Button
           className="rounded-full bg-green-500 hover:bg-green-300 w-20"
@@ -231,45 +231,46 @@ function Flow() {
           <Save /> Save
         </Button>
       </div> */}
-      <div>
-        <div
-          draggable
-          className="w-0 h-0 border-l-[30px] border-l-transparent border-b-[50px] border-b-yellow-500 border-r-[30px] border-r-transparent"
-        />
+      <div className="w-24 h-full border-black border">
+        <div draggable className="w-24 border border-slate-500">
+          Tests
+        </div>
       </div>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onConnect={onConnect}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onReconnect={onReconnect}
-        onReconnectStart={onReconnectStart}
-        onReconnectEnd={onReconnectEnd}
-        isValidConnection={preventCycles}
-        fitView
-        minZoom={0.1}
-        nodeTypes={nodeTypes}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        defaultEdgeOptions={{
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 10,
-            height: 10,
-            color: "#000000",
-          },
-          animated: true,
-          style: {
-            strokeWidth: 1,
-            stroke: "#000000",
-          },
-        }}
-      >
-        <Background />
-        <Controls />
-        <MiniMap />
-      </ReactFlow>
+      <div className="w-full h-full">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onConnect={onConnect}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onReconnect={onReconnect}
+          onReconnectStart={onReconnectStart}
+          onReconnectEnd={onReconnectEnd}
+          isValidConnection={preventCycles}
+          fitView
+          minZoom={0.1}
+          nodeTypes={nodeTypes}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          defaultEdgeOptions={{
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 10,
+              height: 10,
+              color: "#000000",
+            },
+            animated: true,
+            style: {
+              strokeWidth: 1,
+              stroke: "#000000",
+            },
+          }}
+        >
+          <Background />
+          <Controls />
+          <MiniMap />
+        </ReactFlow>
+      </div>
     </div>
   );
 }

@@ -24,8 +24,7 @@ import { ServerIcon } from "lucide-react";
 export default memo(({ id, data }: NodeComponentProps) => {
   const { updateNodeData, getNode } = useReactFlow();
   const [urlEndpoint, setUrlEndpoint] = useState("http://localhost:1234/v1");
-  const [model, setModel] = useState<any>();
-  const [prompt, setPrompt] = useState("");
+  const [vectorStore, setVectorStore] = useState();
 
   const outputHandles = [
     {
@@ -40,11 +39,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
     handleId: NodeDataTypes.VectorStore,
   });
 
-  useEffect(() => {
-    propagateVS(LLMOutputConnections);
-  }, [LLMOutputConnections]);
-
-  const propagateVS = (connections: any) => {
+  const createVectorStore = (): MemoryVectorStore => {
     const vectorStore = new MemoryVectorStore(
       new OpenAIEmbeddings({
         configuration: {
@@ -54,18 +49,13 @@ export default memo(({ id, data }: NodeComponentProps) => {
       })
     );
 
-    const payload = {
-      vectorStore: vectorStore,
-    };
-
-    connections?.forEach((connection: any) => {
-      updateNodeData(connection.target, payload);
-    });
+    return vectorStore;
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUrlEndpoint(event.target.value);
-    propagateVS(LLMOutputConnections);
+    const vectorStore = createVectorStore();
+    updateNodeData(id, { ...data, [NodeDataTypes.VectorStore]: vectorStore });
   };
 
   const checkEndpoint = () => {
