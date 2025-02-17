@@ -1,45 +1,22 @@
-import React, { memo, use, useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
-  Position,
   useNodeConnections,
   useNodes,
   useNodesData,
   useReactFlow,
 } from "@xyflow/react";
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Loader2Icon } from "lucide-react";
 import { Node, NodeComponentProps } from "./components/Node";
 import NodeHeader from "./components/NodeHeader";
 import NodeBody from "./components/NodeBody";
-import {
-  NodeInputHandles,
-  NodeOutputHandles,
-  NodeOutputHandlesProps,
-  NodeInputHandlesProps,
-} from "./components/NodeHandles";
+import { NodeInputHandles, NodeOutputHandles } from "./components/NodeHandles";
 import NodeDataTypes from "./components/NodeDataTypes";
 
 import { BabyAGI } from "langchain/experimental/babyagi";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { OpenAIEmbeddings, OpenAI } from "@langchain/openai";
 import { stringify } from "querystring";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-interface MarkdownProps {
-  content: string;
-}
-
-const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
-  return (
-    <div className="prose max-w-none">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-    </div>
-  );
-};
 
 export default memo(({ id, data }: NodeComponentProps) => {
   const [LLM, setLLM] = useState();

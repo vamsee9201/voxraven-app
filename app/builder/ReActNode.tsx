@@ -12,14 +12,24 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { AgentExecutor, createReactAgent } from "langchain/agents";
+import { pull } from "langchain/hub";
+import { OpenAI } from "@langchain/openai";
+import type { PromptTemplate } from "@langchain/core/prompts";
+
 export default memo(({ id, data }: NodeComponentProps) => {
   const [LLM, setLLM] = useState<ChatOpenAI>();
   const [prompt, setPrompt] = useState("");
+  const [tools, setTools] = useState<[]>([]);
 
   const inputHandles = [
     {
       label: "LLM",
       acceptedType: NodeDataTypes.LLM,
+    },
+    {
+      label: "Tools",
+      acceptedType: NodeDataTypes.Tools,
     },
   ];
 
@@ -53,7 +63,32 @@ export default memo(({ id, data }: NodeComponentProps) => {
     };
     propagateLLMModel(LLMOutputConnections, payload);
 
-    const out = await LLM?.invoke(prompt);
+    ////
+    const promptTemplate = await pull<PromptTemplate>("hwchase17/react");
+
+    const llm = new OpenAI({
+      model: "gpt-3.5-turbo-instruct",
+      temperature: 0,
+    });
+
+    const agent = await createReactAgent({
+      llm: LLM,
+      tools: tools,
+      prompt: promptTemplate,
+    });
+
+    const agentExecutor = new AgentExecutor({
+      agent,
+      tools,
+    });
+
+    console.log("Executing agent");
+    const out = await agentExecutor.invoke({
+      input: prompt,
+    });
+
+    console.log("Output", out);
+    ////
 
     payload = {
       content: out?.content.toString() || "",
@@ -72,7 +107,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
     <Node>
       <NodeHeader
         nodeId={id}
-        title="Prompt Node"
+        title="ReAct Node"
         imgSrc="https://static.thenounproject.com/png/5249626-200.png"
       />
 

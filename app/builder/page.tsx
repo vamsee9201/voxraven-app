@@ -26,6 +26,9 @@ import { DnDProvider, useDragAndDrop } from "./DragAndDropContext";
 import CanvasSideBar from "./CanvasSideBar";
 import { Button } from "@/components/ui/button";
 import { Bomb, Play, Save } from "lucide-react";
+import uuid4 from "uuid4";
+import ReActNode from "./ReActNode";
+import TranscriptionNode from "./TranscriptionNode";
 
 const initialEdges: any[] = [];
 
@@ -63,8 +66,7 @@ const initialNodes = [
   // },
 ];
 
-let id = 0;
-const getId = () => `dndnode_${id++}`;
+const getId = () => uuid4();
 
 function Flow() {
   const edgeReconnectSuccessful = useRef(true);
@@ -108,8 +110,8 @@ function Flow() {
     reactFlow.setNodes((nds) => nds.filter((node) => node.id !== id));
   };
 
-  const deleteAllNodes = () => {
-    reactFlow.setNodes([]);
+  const deleteAllNodes = async () => {
+    await reactFlow.setNodes([]);
   };
 
   useEffect(() => {
@@ -166,8 +168,8 @@ function Flow() {
     }
   };
 
-  const clear = () => {
-    deleteAllNodes();
+  const clear = async () => {
+    await deleteAllNodes();
     localStorage.removeItem("nodes");
     localStorage.removeItem("edges");
     setIsEditedUnsaved(false);
@@ -209,6 +211,8 @@ function Flow() {
     babyAGINode: BabyAGINode,
     vectorStoreNode: VectorStoreNode,
     promptNode: PromptNode,
+    reActNode: ReActNode,
+    transcriptionNode: TranscriptionNode,
   };
 
   const sideBarNodeNames = {
@@ -217,6 +221,8 @@ function Flow() {
     babyAGINode: "Baby AGI Node",
     vectorStoreNode: "Vector Store Node",
     promptNode: "Prompt Node",
+    reActNode: "ReAct Node",
+    transcriptionNode: "Transcription Node",
   };
 
   const start = () => {

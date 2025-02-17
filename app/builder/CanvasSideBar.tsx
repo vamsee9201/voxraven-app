@@ -80,7 +80,7 @@ const CanvasSideBar = ({
       {Object.entries(sideBarNodeNames).map(([key, value]) => (
         <div
           key={key}
-          className="border border-slate-300 rounded-sm input flex items-center gap-2 px-1"
+          className="border border-slate-300 hover:bg-slate-100 rounded-sm input flex items-center gap-2 px-1 cursor-grabbing"
           onDragStart={(event) => onDragStart(event, key)}
           draggable
         >

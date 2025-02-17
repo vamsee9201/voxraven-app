@@ -1,7 +1,5 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import {
-  getOutgoers,
-  Position,
   useNodeConnections,
   useReactFlow,
 } from "@xyflow/react";
@@ -10,7 +8,7 @@ import { toast } from "sonner";
 
 import NodeHeader from "./components/NodeHeader";
 
-import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
 import NodeBody from "./components/NodeBody";
 import { Node, NodeComponentProps } from "./components/Node";
