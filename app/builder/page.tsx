@@ -7,11 +7,11 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  BackgroundVariant,
   MarkerType,
   useReactFlow,
   getOutgoers,
   reconnectEdge,
+  ReactFlowProvider,
 } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -19,54 +19,59 @@ import { toast } from "sonner";
 import "@xyflow/react/dist/style.css";
 import LLMNode from "./LLMNode";
 import OutputNode from "./OutputNode";
-import { Button } from "@/components/ui/button";
-import { Play, Save, StarIcon } from "lucide-react";
 import BabyAGINode from "./BabyAGINode";
 import VectorStoreNode from "./VectorStoreNode";
 import PromptNode from "./PromptNode";
+import { DnDProvider, useDragAndDrop } from "./DragAndDropContext";
+import CanvasSideBar from "./CanvasSideBar";
+import { Button } from "@/components/ui/button";
+import { Bomb, Play, Save } from "lucide-react";
 
 const initialEdges: any[] = [];
 
 const initialNodes = [
-  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" }, type: "llmNode" },
-  {
-    id: "2",
-    data: {},
-    position: { x: 600, y: 100 },
-    type: "outputNode",
-  },
-  {
-    id: "3",
-    data: {},
-    position: { x: 600, y: 400 },
-    type: "vectorStoreNode",
-  },
-  {
-    id: "4",
-    data: {},
-    position: { x: 600, y: 800 },
-    type: "babyAGINode",
-  },
-  {
-    id: "5",
-    data: {},
-    position: { x: 600, y: 1200 },
-    type: "promptNode",
-  },
-  {
-    id: "6",
-    data: {},
-    position: { x: 600, y: 100 },
-    type: "outputNode",
-  },
+  // { id: "1", position: { x: 0, y: 0 }, data: { label: "1" }, type: "llmNode" },
+  // {
+  //   id: "2",
+  //   data: {},
+  //   position: { x: 600, y: 100 },
+  //   type: "outputNode",
+  // },
+  // {
+  //   id: "3",
+  //   data: {},
+  //   position: { x: 600, y: 400 },
+  //   type: "vectorStoreNode",
+  // },
+  // {
+  //   id: "4",
+  //   data: {},
+  //   position: { x: 600, y: 800 },
+  //   type: "babyAGINode",
+  // },
+  // {
+  //   id: "5",
+  //   data: {},
+  //   position: { x: 600, y: 1200 },
+  //   type: "promptNode",
+  // },
+  // {
+  //   id: "6",
+  //   data: {},
+  //   position: { x: 600, y: 100 },
+  //   type: "outputNode",
+  // },
 ];
+
+let id = 0;
+const getId = () => `dndnode_${id++}`;
 
 function Flow() {
   const edgeReconnectSuccessful = useRef(true);
   const { updateNodeData, screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [type] = useDragAndDrop();
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
@@ -96,6 +101,16 @@ function Flow() {
 
   const { getNodes, getEdges } = useReactFlow();
   const [isEditedUnsaved, setIsEditedUnsaved] = useState(false);
+
+  const reactFlow = useReactFlow();
+
+  const deleteNodeById = (id: string) => {
+    reactFlow.setNodes((nds) => nds.filter((node) => node.id !== id));
+  };
+
+  const deleteAllNodes = () => {
+    reactFlow.setNodes([]);
+  };
 
   useEffect(() => {
     load();
@@ -151,6 +166,17 @@ function Flow() {
     }
   };
 
+  const clear = () => {
+    deleteAllNodes();
+    localStorage.removeItem("nodes");
+    localStorage.removeItem("edges");
+    setIsEditedUnsaved(false);
+
+    toast.info("Cleared", {
+      description: "All nodes were deleted.",
+    });
+  };
+
   const preventCycles = useCallback(
     (connection: { target: any; source: any }) => {
       // we are using getNodes and getEdges helpers here
@@ -185,58 +211,84 @@ function Flow() {
     promptNode: PromptNode,
   };
 
+  const sideBarNodeNames = {
+    llmNode: "LLM Node",
+    outputNode: "Output Node",
+    babyAGINode: "Baby AGI Node",
+    vectorStoreNode: "Vector Store Node",
+    promptNode: "Prompt Node",
+  };
+
   const start = () => {
     updateNodeData("1", { start: true });
   };
 
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    console.log("Dragged over");
-  };
+  const onDragOver = useCallback(
+    (event: {
+      preventDefault: () => void;
+      dataTransfer: { dropEffect: string };
+    }) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+    },
+    []
+  );
 
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const position = screenToFlowPosition({
-      x: e.clientX,
-      y: e.clientY,
-    });
+  const onDrop = useCallback(
+    (event: { preventDefault: () => void; clientX: any; clientY: any }) => {
+      event.preventDefault();
 
-    setNodes((nodes) => [
-      ...nodes,
-      {
-        id: "7",
-        data: {},
+      // check if the dropped element is valid
+      if (!type) {
+        return;
+      }
+
+      // project was renamed to screenToFlowPosition
+      // and you don't need to subtract the reactFlowBounds.left/top anymore
+      // details: https://reactflow.dev/whats-new/2023-11-10
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      const newNode = {
+        id: getId(),
         position: position,
-        type: "outputNode",
-      },
-    ]);
-    console.log("Dropped");
-  };
+        data: {},
+        type: type.toString(),
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [screenToFlowPosition, type]
+  );
 
   return (
-    <div className="h-full border border-slate-150 rounded-md flex flex-row">
-      {/* <div className="absolute z-10 flex flex-row gap-2 p-2 m-2 ">
-        <Button
-          className="rounded-full bg-green-500 hover:bg-green-300 w-20"
-          size="icon"
-          onClick={start}
-        >
-          <Play /> Run
-        </Button>
-        <Button
-          className="rounded-full bg-yellow-500 hover:bg-yellow-300 w-20"
-          size="icon"
-          onClick={save}
-        >
-          <Save /> Save
-        </Button>
-      </div> */}
-      <div className="w-24 h-full border-black border">
-        <div draggable className="w-24 border border-slate-500">
-          Tests
+    <div className="h-full flex flex-row">
+      <CanvasSideBar sideBarNodeNames={sideBarNodeNames} />
+      <div className="w-full h-full border border-slate-150 rounded-md">
+        <div className="absolute z-10 flex flex-row gap-2 p-2 m-2">
+          <Button
+            className="rounded-full bg-green-500 hover:bg-green-300 w-20"
+            size="icon"
+            onClick={start}
+          >
+            <Play /> Run
+          </Button>
+          <Button
+            className="rounded-full bg-yellow-500 hover:bg-yellow-300 w-20"
+            size="icon"
+            onClick={save}
+          >
+            <Save /> Save
+          </Button>
+          <Button
+            className="rounded-full bg-red-500 hover:bg-red-300 w-20"
+            size="icon"
+            onClick={clear}
+          >
+            <Bomb /> Clear
+          </Button>
         </div>
-      </div>
-      <div className="w-full h-full">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -275,4 +327,10 @@ function Flow() {
   );
 }
 
-export default Flow;
+export default () => (
+  <ReactFlowProvider>
+    <DnDProvider>
+      <Flow />
+    </DnDProvider>
+  </ReactFlowProvider>
+);

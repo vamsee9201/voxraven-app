@@ -48,7 +48,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TooltipProvider delayDuration={200}>
-          <ReactFlowProvider>
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>
@@ -74,7 +73,6 @@ export default function RootLayout({
                 </div>
               </SidebarInset>
             </SidebarProvider>
-          </ReactFlowProvider>
         </TooltipProvider>
         <Toaster position="top-right"  />
       </body>

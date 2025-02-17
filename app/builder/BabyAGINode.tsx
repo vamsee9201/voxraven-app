@@ -87,16 +87,6 @@ export default memo(({ id, data }: NodeComponentProps) => {
 
   const nodes = useNodes();
 
-  const reactFlow = useReactFlow();
-
-  const deleteNodeById = (id: string) => {
-    reactFlow.setNodes((nds) => nds.filter((node) => node.id !== id));
-  };
-
-  const deleteCurrentNode = () => {
-    reactFlow.setNodes((nds) => nds.filter((node) => node.id !== id));
-  };
-
   useEffect(() => {
     console.log("bby", vcNodeData?.data?.[NodeDataTypes.VectorStore]);
 
@@ -154,6 +144,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
   return (
     <Node>
       <NodeHeader
+        nodeId={id}
         title="Baby AGI"
         imgSrc="https://sprout24.com/hub/wp-content/uploads/sites/2/2024/08/babyagi-600x600.png"
       />
@@ -172,7 +163,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
           />
         </div>
         <div className="w-full">
-          <Button onClick={deleteCurrentNode} variant="outline" className="w-full">
+          <Button onClick={run} variant="outline" className="w-full">
             Run
           </Button>
         </div>

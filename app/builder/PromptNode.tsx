@@ -94,6 +94,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
   return (
     <Node>
       <NodeHeader
+        nodeId={id}
         title="Prompt Node"
         imgSrc="https://static.thenounproject.com/png/5249626-200.png"
       />

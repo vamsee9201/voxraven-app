@@ -48,7 +48,11 @@ export default memo(({ id, data }: NodeComponentProps) => {
 
   return (
     <Node>
-      <NodeHeader title="Prompt output" imgSrc="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4N_soUiGggkq4TxayU7O_echs7FO8ISMD5w&s" />
+      <NodeHeader
+        nodeId={id}
+        title="Prompt output"
+        imgSrc="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4N_soUiGggkq4TxayU7O_echs7FO8ISMD5w&s"
+      />
 
       <NodeInputHandles handles={inputHandles} />
 

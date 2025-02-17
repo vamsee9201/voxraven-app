@@ -81,6 +81,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
   return (
     <Node>
       <NodeHeader
+        nodeId={id}
         title="Vetor Store"
         imgSrc="https://ignos.blog/wp-content/uploads/2024/01/lm-studio-logo.png"
       />
