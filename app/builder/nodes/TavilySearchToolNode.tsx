@@ -27,7 +27,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
   const create = () => {
     const search = new TavilySearchResults({
       maxResults: 1,
-      apiKey: "**your-api-key**",
+      apiKey: process.env.REACT_APP_TAVILY_API_KEY,
     });
     updateNodeData(id, { [NodeDataTypes.Tools]: search });
   };

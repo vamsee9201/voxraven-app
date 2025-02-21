@@ -43,7 +43,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
       model: "gpt-4o-mini",
       configuration: {
         baseURL: urlEndpoint,
-        apiKey: "123456"
+        apiKey: process.env.OPENAI_API_KEY,
       },
       stop: ["\nFinal Answer"],
     });
