@@ -17,62 +17,70 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import "@xyflow/react/dist/style.css";
-import LLMNode from "./LLMNode";
-import OutputNode from "./OutputNode";
-import BabyAGINode from "./BabyAGINode";
-import VectorStoreNode from "./VectorStoreNode";
-import PromptNode from "./PromptNode";
+import LLMNode from "./nodes/LLMNode";
+import OutputNode from "./nodes/OutputNode";
+import BabyAGINode from "./nodes/BabyAGINode";
+import VectorStoreNode from "./nodes/VectorStoreNode";
+import PromptNode from "./nodes/PromptNode";
 import { DnDProvider, useDragAndDrop } from "./DragAndDropContext";
 import CanvasSideBar from "./CanvasSideBar";
 import { Button } from "@/components/ui/button";
 import { Bomb, Play, Save } from "lucide-react";
 import uuid4 from "uuid4";
-import ReActNode from "./ReActNode";
-import TranscriptionNode from "./TranscriptionNode";
+import ReActNode from "./nodes/ReActNode";
+import TranscriptionNode from "./nodes/TranscriptionNode";
+import EmbeddingsNode from "./nodes/EmbeddingsNode";
+import WebBrowserToolNode from "./nodes/WebBrowserToolNode";
+import PromptTemplateNode from "./nodes/PromptTemplateNode";
+import TextInputNode from "./nodes/TextInputNode";
+import DuckDuckGoSearchToolNode from "./nodes/TavilySearchToolNode";
+import ReActNodeConversational from "./nodes/ReActNodeConversational";
+import AutoGPTNode from "./nodes/AutoGPTNode";
+import SPINAnalysisNode from "./nodes/SPINAnalysisNode";
 
-const initialEdges: any[] = [];
+const nodeTypes = {
+  llmNode: LLMNode,
+  outputNode: OutputNode,
+  babyAGINode: BabyAGINode,
+  vectorStoreNode: VectorStoreNode,
+  promptNode: PromptNode,
+  reActNode: ReActNode,
+  reActConversationalNode: ReActNodeConversational,
+  transcriptionNode: TranscriptionNode,
+  embeddingsNode: EmbeddingsNode,
+  webBrowserToolNode: WebBrowserToolNode,
+  promptTemplateNode: PromptTemplateNode,
+  textInputNode: TextInputNode,
+  duckDuckGoSearchToolNode: DuckDuckGoSearchToolNode,
+  autoGPTNode: AutoGPTNode,
+  spinAnalysisNode: SPINAnalysisNode,
+};
 
-const initialNodes = [
-  // { id: "1", position: { x: 0, y: 0 }, data: { label: "1" }, type: "llmNode" },
-  // {
-  //   id: "2",
-  //   data: {},
-  //   position: { x: 600, y: 100 },
-  //   type: "outputNode",
-  // },
-  // {
-  //   id: "3",
-  //   data: {},
-  //   position: { x: 600, y: 400 },
-  //   type: "vectorStoreNode",
-  // },
-  // {
-  //   id: "4",
-  //   data: {},
-  //   position: { x: 600, y: 800 },
-  //   type: "babyAGINode",
-  // },
-  // {
-  //   id: "5",
-  //   data: {},
-  //   position: { x: 600, y: 1200 },
-  //   type: "promptNode",
-  // },
-  // {
-  //   id: "6",
-  //   data: {},
-  //   position: { x: 600, y: 100 },
-  //   type: "outputNode",
-  // },
-];
+const sideBarNodeNames = {
+  llmNode: "LLM",
+  outputNode: "Output",
+  babyAGINode: "Baby AGI",
+  vectorStoreNode: "Vector Store",
+  promptNode: "Prompt",
+  reActNode: "ReAct",
+  transcriptionNode: "Transcription",
+  embeddingsNode: "Embeddings",
+  webBrowserToolNode: "WebBrowser",
+  promptTemplateNode: "Prompt Template",
+  textInputNode: "Text Input",
+  duckDuckGoSearchToolNode: "Tavily Search",
+  reActConversationalNode: "ReAct Conversational",
+  autoGPTNode: "AutoGPT",
+  spinAnalysisNode: "SPIN Analysis",
+};
 
 const getId = () => uuid4();
 
 function Flow() {
   const edgeReconnectSuccessful = useRef(true);
   const { updateNodeData, screenToFlowPosition } = useReactFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [type] = useDragAndDrop();
 
   const onConnect = useCallback(
@@ -204,26 +212,6 @@ function Flow() {
     },
     [getNodes, getEdges]
   );
-
-  const nodeTypes = {
-    llmNode: LLMNode,
-    outputNode: OutputNode,
-    babyAGINode: BabyAGINode,
-    vectorStoreNode: VectorStoreNode,
-    promptNode: PromptNode,
-    reActNode: ReActNode,
-    transcriptionNode: TranscriptionNode,
-  };
-
-  const sideBarNodeNames = {
-    llmNode: "LLM Node",
-    outputNode: "Output Node",
-    babyAGINode: "Baby AGI Node",
-    vectorStoreNode: "Vector Store Node",
-    promptNode: "Prompt Node",
-    reActNode: "ReAct Node",
-    transcriptionNode: "Transcription Node",
-  };
 
   const start = () => {
     updateNodeData("1", { start: true });

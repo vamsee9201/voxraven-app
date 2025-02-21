@@ -1,19 +1,24 @@
 import React, { memo, useEffect, useState } from "react";
-import { Position } from "@xyflow/react";
+import {
+  Position,
+  useNodeConnections,
+  useNodesData,
+  useReactFlow,
+} from "@xyflow/react";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Loader2Icon } from "lucide-react";
-import { Node, NodeComponentProps } from "./components/Node";
-import NodeHeader from "./components/NodeHeader";
-import NodeBody from "./components/NodeBody";
+import { Node, NodeComponentProps } from "./blocks/Node";
+import NodeHeader from "./blocks/NodeHeader";
+import NodeBody from "./blocks/NodeBody";
 import {
   NodeInputHandles,
   NodeOutputHandles,
   NodeOutputHandlesProps,
   NodeInputHandlesProps,
-} from "./components/NodeHandles";
-import NodeDataTypes from "./components/NodeDataTypes";
+} from "./blocks/NodeHandles";
+import NodeDataTypes from "./blocks/NodeDataTypes";
 
 interface MarkdownProps {
   content: string;
@@ -27,24 +32,30 @@ const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
   );
 };
 
+const inputHandles = [
+  {
+    label: "LLM Output",
+    acceptedType: NodeDataTypes.LLMOutput,
+  },
+];
+
 export default memo(({ id, data }: NodeComponentProps) => {
   const [modelOutput, setModelOutput] = useState("");
-  const [isThinking, setIsThinking] = useState(false);
 
-  const inputHandles = [
-    {
-      label: "LLM Output",
-      acceptedType: NodeDataTypes.LLMOutput,
-    },
-  ];
+  const incomingLLMOutputConns = useNodeConnections({
+    id: id,
+    handleType: "target",
+    handleId: NodeDataTypes.LLMOutput,
+  });
 
-  useEffect(() => {
-    setModelOutput(data.content);
-  }, [data?.content]);
+  const llmOutputNodeData = useNodesData(incomingLLMOutputConns[0]?.source);
 
   useEffect(() => {
-    setIsThinking(data.thinking);
-  }, [data?.thinking]);
+    const llmOutput = llmOutputNodeData?.data?.[NodeDataTypes.LLMOutput] as string;
+    if (llmOutput) {
+      setModelOutput(llmOutput);
+    }
+  }, [llmOutputNodeData]);
 
   return (
     <Node>
@@ -58,15 +69,9 @@ export default memo(({ id, data }: NodeComponentProps) => {
 
       <NodeBody>
         <div className="mt-2">
-          {!isThinking ? (
-            <div className="text-sm max-w-64">
-              <MarkdownRenderer content={modelOutput} />
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <Loader2Icon className="animate-spin h-8 w-8" />
-            </div>
-          )}
+          <div className="text-sm max-w-64">
+            <MarkdownRenderer content={modelOutput} />
+          </div>
         </div>
       </NodeBody>
     </Node>

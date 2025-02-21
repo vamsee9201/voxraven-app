@@ -84,7 +84,7 @@ const CanvasSideBar = ({
           onDragStart={(event) => onDragStart(event, key)}
           draggable
         >
-          <GripHorizontal size={14} />
+          <GripHorizontal size={14} className="text-slate-400" />
           {value}
         </div>
       ))}

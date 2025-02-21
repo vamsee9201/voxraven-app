@@ -1,79 +1,68 @@
 import React, { memo, useEffect, useState } from "react";
-import {
-  getOutgoers,
-  Position,
-  useNodeConnections,
-  useReactFlow,
-} from "@xyflow/react";
+import { useNodeConnections, useNodesData, useReactFlow } from "@xyflow/react";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
-import NodeHeader from "./components/NodeHeader";
+import NodeHeader from "./blocks/NodeHeader";
 
-import { ChatOpenAI } from "@langchain/openai";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
-import NodeBody from "./components/NodeBody";
-import { Node, NodeComponentProps } from "./components/Node";
-import { NodeOutputHandles } from "./components/NodeHandles";
-import NodeDataTypes from "./components/NodeDataTypes";
+import NodeBody from "./blocks/NodeBody";
+import { Node, NodeComponentProps } from "./blocks/Node";
+import { NodeInputHandles, NodeOutputHandles } from "./blocks/NodeHandles";
+import NodeDataTypes from "./blocks/NodeDataTypes";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ServerIcon } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
 
-type LLMOutput = {
-  content?: string;
-  thinking: boolean;
-};
+const inputHandles = [
+  {
+    label: "Embeddings",
+    acceptedType: NodeDataTypes.Embeddings,
+  },
+];
+
+const outputHandles = [
+  {
+    label: "Vector Store",
+    outputType: NodeDataTypes.VectorStore,
+  },
+];
 
 export default memo(({ id, data }: NodeComponentProps) => {
   const { updateNodeData, getNode } = useReactFlow();
   const [urlEndpoint, setUrlEndpoint] = useState("http://localhost:1234/v1");
-  const [model, setModel] = useState<any>();
-  const [prompt, setPrompt] = useState("");
 
-  const outputHandles = [
-    {
-      label: "LLM",
-      outputType: NodeDataTypes.LLM,
-    },
-  ];
+  const incomingEmbeddingsConns = useNodeConnections({
+    id: id,
+    handleType: "target",
+    handleId: NodeDataTypes.Embeddings,
+  });
 
-  const LLMOutputConnections = useNodeConnections({
+  const embeddingsNodeData = useNodesData(incomingEmbeddingsConns[0]?.source);
+
+  const outgoingVectorStoreConns = useNodeConnections({
     id: id,
     handleType: "source",
-    handleId: NodeDataTypes.LLM,
   });
 
   useEffect(() => {
-    propagateLLMModel(LLMOutputConnections);
-  }, [LLMOutputConnections]);
+    createVectorStore();
+  }, [outgoingVectorStoreConns]);
 
-  useEffect(() => {
-    console.log("Model Created");
-  }, [urlEndpoint]);
+  const createVectorStore = () => {
+    const embeddings = embeddingsNodeData?.data?.[
+      NodeDataTypes.Embeddings
+    ] as OpenAIEmbeddings;
 
-  const propagateLLMModel = (connections: any) => {
-    const model = new ChatOpenAI({
-      temperature: 0,
-      configuration: {
-        baseURL: urlEndpoint,
-        apiKey: "sk_test_123",
-      },
-    });
-
-    const payload = {
-      LLM: model,
-    };
-
-    connections?.forEach((connection: any) => {
-      updateNodeData(connection.target, payload);
-    });
+    const vectorStore = new MemoryVectorStore(embeddings);
+    updateNodeData(id, { [NodeDataTypes.VectorStore]: vectorStore });
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUrlEndpoint(event.target.value);
-    propagateLLMModel(LLMOutputConnections);
+    createVectorStore();
   };
 
   const checkEndpoint = () => {
@@ -100,9 +89,11 @@ export default memo(({ id, data }: NodeComponentProps) => {
     <Node>
       <NodeHeader
         nodeId={id}
-        title="LM Studio Model"
+        title="Vetor Store"
         imgSrc="https://ignos.blog/wp-content/uploads/2024/01/lm-studio-logo.png"
       />
+
+      <NodeInputHandles handles={inputHandles} />
 
       <NodeBody>
         <div className="space-y-2">

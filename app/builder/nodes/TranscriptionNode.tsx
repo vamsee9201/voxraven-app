@@ -1,20 +1,13 @@
 import React, { memo, useEffect, useState } from "react";
-import { Position } from "@xyflow/react";
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Loader2Icon } from "lucide-react";
-import { Node, NodeComponentProps } from "./components/Node";
-import NodeHeader from "./components/NodeHeader";
-import NodeBody from "./components/NodeBody";
+import { Node, NodeComponentProps } from "./blocks/Node";
+import NodeHeader from "./blocks/NodeHeader";
+import NodeBody from "./blocks/NodeBody";
 import {
   NodeInputHandles,
-  NodeOutputHandles,
-  NodeOutputHandlesProps,
-  NodeInputHandlesProps,
-} from "./components/NodeHandles";
-import NodeDataTypes from "./components/NodeDataTypes";
-import FileUpload from "./FileUpload";
+} from "./blocks/NodeHandles";
+import NodeDataTypes from "./blocks/NodeDataTypes";
+import FileUpload from "./blocks/FileUpload";
 
 export default memo(({ id, data }: NodeComponentProps) => {
   const [modelOutput, setModelOutput] = useState("");

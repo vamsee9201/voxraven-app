@@ -1,59 +1,50 @@
-import React, { memo, useState } from "react";
-import {
-  useNodeConnections,
-  useReactFlow,
-} from "@xyflow/react";
+import React, { memo, useEffect, useState } from "react";
+import { useNodeConnections, useReactFlow } from "@xyflow/react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-import NodeHeader from "./components/NodeHeader";
+import NodeHeader from "./blocks/NodeHeader";
 
 import { OpenAIEmbeddings } from "@langchain/openai";
 
-import NodeBody from "./components/NodeBody";
-import { Node, NodeComponentProps } from "./components/Node";
-import { NodeOutputHandles } from "./components/NodeHandles";
-import NodeDataTypes from "./components/NodeDataTypes";
+import NodeBody from "./blocks/NodeBody";
+import { Node, NodeComponentProps } from "./blocks/Node";
+import { NodeOutputHandles } from "./blocks/NodeHandles";
+import NodeDataTypes from "./blocks/NodeDataTypes";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ServerIcon } from "lucide-react";
 
+const outputHandles = [
+  {
+    label: "Embeddings",
+    outputType: NodeDataTypes.Embeddings,
+  },
+];
+
 export default memo(({ id, data }: NodeComponentProps) => {
-  const { updateNodeData, getNode } = useReactFlow();
+  const { updateNodeData } = useReactFlow();
   const [urlEndpoint, setUrlEndpoint] = useState("http://localhost:1234/v1");
-  const [vectorStore, setVectorStore] = useState();
 
-  const outputHandles = [
-    {
-      label: "Vector Store",
-      outputType: NodeDataTypes.VectorStore,
-    },
-  ];
-
-  const LLMOutputConnections = useNodeConnections({
+  const outgoingEmbsConns = useNodeConnections({
     id: id,
     handleType: "source",
-    handleId: NodeDataTypes.VectorStore,
   });
 
-  const createVectorStore = (): MemoryVectorStore => {
-    const vectorStore = new MemoryVectorStore(
-      new OpenAIEmbeddings({
-        configuration: {
-          baseURL: "http://localhost:1234/v1",
-          apiKey: "sk_test_123",
-        },
-      })
-    );
+  useEffect(() => {
+    const embs = new OpenAIEmbeddings({
+      configuration: {
+        baseURL: urlEndpoint,
+        apiKey: "sk_test_123",
+      },
+    });
 
-    return vectorStore;
-  };
+    updateNodeData(id, { [NodeDataTypes.Embeddings]: embs });
+  }, [outgoingEmbsConns]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUrlEndpoint(event.target.value);
-    const vectorStore = createVectorStore();
-    updateNodeData(id, { ...data, [NodeDataTypes.VectorStore]: vectorStore });
   };
 
   const checkEndpoint = () => {
@@ -80,7 +71,7 @@ export default memo(({ id, data }: NodeComponentProps) => {
     <Node>
       <NodeHeader
         nodeId={id}
-        title="Vetor Store"
+        title="Embeddings"
         imgSrc="https://ignos.blog/wp-content/uploads/2024/01/lm-studio-logo.png"
       />
 

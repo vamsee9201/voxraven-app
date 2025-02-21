@@ -40,6 +40,7 @@ interface CustomHandleProps {
 interface InputHandleProps {
   label: string;
   acceptedType: any;
+  maxConnections?: number;
 }
 
 interface OutputHandleProps {
@@ -106,14 +107,18 @@ const CustomHandle = ({
   );
 };
 
-const InputHandle = ({ label, acceptedType }: InputHandleProps) => {
+const InputHandle = ({
+  label,
+  acceptedType,
+  maxConnections = 1,
+}: InputHandleProps) => {
   return (
     <CustomHandle
       label={label}
       type="target"
       position={Position.Left}
       id={acceptedType}
-      maxConnections={1}
+      maxConnections={maxConnections}
     />
   );
 };
@@ -155,6 +160,7 @@ export const NodeInputHandles = ({ handles }: NodeInputHandlesProps) => {
         <InputHandle
           label={item.label}
           acceptedType={item.acceptedType}
+          maxConnections={item?.maxConnections}
           key={index}
         />
       ))}
