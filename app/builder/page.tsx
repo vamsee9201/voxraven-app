@@ -25,7 +25,7 @@ import PromptNode from "./nodes/PromptNode";
 import { DnDProvider, useDragAndDrop } from "./DragAndDropContext";
 import CanvasSideBar from "./CanvasSideBar";
 import { Button } from "@/components/ui/button";
-import { Bomb, Play, Save } from "lucide-react";
+import { Bomb, Play, Save,Menu } from "lucide-react";
 import uuid4 from "uuid4";
 import ReActNode from "./nodes/ReActNode";
 import TranscriptionNode from "./nodes/TranscriptionNode";
@@ -82,6 +82,7 @@ function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [type] = useDragAndDrop();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
@@ -256,67 +257,80 @@ function Flow() {
     [screenToFlowPosition, type]
   );
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
   return (
-    <div className="h-full flex flex-row">
-      <div className="w-full h-full border border-slate-150 rounded-md">
-        <div className="absolute z-10 flex flex-row gap-2 p-2 m-2">
-          <Button
-            className="rounded-full bg-green-500 hover:bg-green-300 w-20"
-            size="icon"
-            onClick={start}
-          >
-            <Play /> Run
-          </Button>
-          <Button
-            className="rounded-full bg-yellow-500 hover:bg-yellow-300 w-20"
-            size="icon"
-            onClick={save}
-          >
-            <Save /> Save
-          </Button>
-          <Button
-            className="rounded-full bg-red-500 hover:bg-red-300 w-20"
-            size="icon"
-            onClick={clear}
-          >
-            <Bomb /> Clear
-          </Button>
-        </div>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onConnect={onConnect}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onReconnect={onReconnect}
-          onReconnectStart={onReconnectStart}
-          onReconnectEnd={onReconnectEnd}
-          isValidConnection={preventCycles}
-          fitView
-          minZoom={0.1}
-          nodeTypes={nodeTypes}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          defaultEdgeOptions={{
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              width: 10,
-              height: 10,
-              color: "#000000",
-            },
-            animated: true,
-            style: {
-              strokeWidth: 1,
-              stroke: "#000000",
-            },
-          }}
-        >
-          <Background />
-          <Controls />
-          <MiniMap />
-        </ReactFlow>
+    <div className="h-full flex flex-col">
+      <div className="flex justify-end items-center p-2">
+        <button onClick={toggleSidebar} className="p-2">
+          <Menu size={24} />
+        </button>
       </div>
-      <CanvasSideBar sideBarNodeNames={sideBarNodeNames} />
+      <div className="flex h-full">
+        <div className="w-full h-full border border-slate-150 rounded-md">
+          <div className="absolute z-10 flex flex-row gap-2 p-2 m-2">
+            <Button
+              className="rounded-full bg-green-500 hover:bg-green-300 w-20"
+              size="icon"
+              onClick={start}
+            >
+              <Play /> Run
+            </Button>
+            <Button
+              className="rounded-full bg-yellow-500 hover:bg-yellow-300 w-20"
+              size="icon"
+              onClick={save}
+            >
+              <Save /> Save
+            </Button>
+            <Button
+              className="rounded-full bg-red-500 hover:bg-red-300 w-20"
+              size="icon"
+              onClick={clear}
+            >
+              <Bomb /> Clear
+            </Button>
+          </div>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onConnect={onConnect}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onReconnect={onReconnect}
+            onReconnectStart={onReconnectStart}
+            onReconnectEnd={onReconnectEnd}
+            isValidConnection={preventCycles}
+            fitView
+            minZoom={0.1}
+            nodeTypes={nodeTypes}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            defaultEdgeOptions={{
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 10,
+                height: 10,
+                color: "#000000",
+              },
+              animated: true,
+              style: {
+                strokeWidth: 1,
+                stroke: "#000000",
+              },
+            }}
+          >
+            <Background />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
+        </div>
+        {isSidebarOpen && (
+          <CanvasSideBar sideBarNodeNames={sideBarNodeNames} />
+        )}
+      </div>
     </div>
   );
 }
