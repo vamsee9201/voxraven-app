@@ -258,7 +258,6 @@ function Flow() {
 
   return (
     <div className="h-full flex flex-row">
-      <CanvasSideBar sideBarNodeNames={sideBarNodeNames} />
       <div className="w-full h-full border border-slate-150 rounded-md">
         <div className="absolute z-10 flex flex-row gap-2 p-2 m-2">
           <Button
@@ -317,6 +316,7 @@ function Flow() {
           <MiniMap />
         </ReactFlow>
       </div>
+      <CanvasSideBar sideBarNodeNames={sideBarNodeNames} />
     </div>
   );
 }
