@@ -324,6 +324,7 @@ function Flow() {
           >
             <Background />
             <Controls />
+    
             <MiniMap />
           </ReactFlow>
         </div>
